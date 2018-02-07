@@ -12,14 +12,14 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		5EC0648702CE3FE19C75BAC5 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; name = README.md; path = ../README.md; sourceTree = "<group>"; };
+		5EC0648702CE3FE19C75BAC5 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		607FACE51AFB9204008FA782 /* Router_Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Router_Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		607FACEA1AFB9204008FA782 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		607FACEB1AFB9204008FA782 /* Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests.swift; sourceTree = "<group>"; };
-		7E97A76FED888778E960F638 /* Router.podspec */ = {isa = PBXFileReference; includeInIndex = 1; name = Router.podspec; path = ../Router.podspec; sourceTree = "<group>"; };
+		7E97A76FED888778E960F638 /* Router.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Router.podspec; path = ../Router.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		9A2EDF7DEB8EBFB9B8B83BC7 /* Pods-Router_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Router_Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-Router_Tests/Pods-Router_Tests.release.xcconfig"; sourceTree = "<group>"; };
 		A2EF1D163ED64CABA072EA1A /* Pods_Router_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Router_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		D9727279EF3C7771094333BB /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
+		D9727279EF3C7771094333BB /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 		F988F24D365E0CA5594B171D /* Pods-Router_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Router_Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Router_Tests/Pods-Router_Tests.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -131,12 +131,9 @@
 				LastUpgradeCheck = 0830;
 				ORGANIZATIONNAME = CocoaPods;
 				TargetAttributes = {
-					607FACCF1AFB9204008FA782 = {
-						CreatedOnToolsVersion = 6.3.1;
-						LastSwiftMigration = 0900;
-					};
 					607FACE41AFB9204008FA782 = {
 						CreatedOnToolsVersion = 6.3.1;
+						DevelopmentTeam = UHVDZDRE69;
 						LastSwiftMigration = 0900;
 						TestTargetID = 607FACCF1AFB9204008FA782;
 					};
@@ -339,6 +336,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = F988F24D365E0CA5594B171D /* Pods-Router_Tests.debug.xcconfig */;
 			buildSettings = {
+				DEVELOPMENT_TEAM = UHVDZDRE69;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -360,6 +358,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 9A2EDF7DEB8EBFB9B8B83BC7 /* Pods-Router_Tests.release.xcconfig */;
 			buildSettings = {
+				DEVELOPMENT_TEAM = UHVDZDRE69;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
