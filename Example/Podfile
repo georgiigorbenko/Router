@@ -1,0 +1,6 @@
+use_frameworks!
+target 'Router_Tests' do
+  pod 'Router', :path => '../'
+  
+  
+end
