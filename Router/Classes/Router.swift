@@ -11,7 +11,7 @@ public protocol RoutableAware {
     var routable:Routable { get }
 }
 
-public class Router {
+public class Router<Segment:RouteSegment> {
 
     var rootViewController:UIViewController
 
@@ -76,12 +76,12 @@ public class Router {
         return stack
     }
 
-    public func route(_ newSegments:[RouteSegment], animated:Bool = true) {
+    public func route(_ newSegments:[Segment], animated:Bool = true) {
         let actions = routingActions(newSegments: newSegments)
         performRoutingActionsInQueue(actions: actions)
     }
 
-    public func push(_ newSegments:[RouteSegment], animated:Bool = true) {
+    public func push(_ newSegments:[Segment], animated:Bool = true) {
         var actions = [RoutingActions]()
         let currentStack = fullStack
         for (i, segment) in newSegments.enumerated() {
@@ -148,7 +148,7 @@ public class Router {
         }
     }
 
-    private func routingActions(newSegments:[RouteSegment]) -> [RoutingActions] {
+    private func routingActions(newSegments:[Segment]) -> [RoutingActions] {
         var actions = [RoutingActions]()
 
         let currentStack = fullStack

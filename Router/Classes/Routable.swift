@@ -30,4 +30,3 @@ public extension Routable {
 }
 
 public class EmptyRoutable: Routable {}
-
