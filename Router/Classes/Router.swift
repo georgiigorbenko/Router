@@ -27,12 +27,19 @@ public class Router<Segment:RouteSegment> {
         self.rootViewController = rootViewController
 
         registerRouteStackHandler(type: UIViewController.self) { vc in
-            var stack:[UIViewController] = [vc]
-            var currentVc = vc
-            while (currentVc.presentedViewController != nil) {
-                currentVc = currentVc.presentedViewController!
-                stack.append(currentVc)
-            }
+            var stack = [UIViewController]()
+
+            let managedStackTypes = Array(self.routeStackTypes.dropLast())
+
+            var currentVc = Optional.some(vc)
+            repeat {
+                stack.append(currentVc!)
+
+                if (managedStackTypes.index { currentVc!.isKind(of: $0) }) != nil { break }
+
+                currentVc = currentVc!.presentedViewController
+            } while (currentVc != nil)
+
             return stack
         }
         registerRouteStackHandler(type: UITabBarController.self) { vc in
@@ -54,10 +61,7 @@ public class Router<Segment:RouteSegment> {
     }
 
     private func findRouteStackHandler(for vc:UIViewController) -> RouteStackHandlerType {
-        let index = routeStackTypes.index { type in
-            return vc.isKind(of: type)
-            }!
-
+        let index = routeStackTypes.index { vc.isKind(of: $0) }!
         return routeStackHandlers[index]
     }
 
@@ -73,6 +77,7 @@ public class Router<Segment:RouteSegment> {
 
         let lastVc = stack.popLast()!
         stack += buildStack(vc: lastVc)
+
         return stack
     }
 
