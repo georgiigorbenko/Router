@@ -13,7 +13,9 @@ public protocol RoutableAware {
 
 public class Router<Segment:RouteSegment> {
 
-    var rootViewController:UIViewController
+    private let completionHandlerWaitingDelay:Double = 5
+
+    private var rootViewController:UIViewController
 
     public typealias RouteStackHandlerType = (UIViewController) -> [UIViewController]
 
@@ -141,13 +143,13 @@ public class Router<Segment:RouteSegment> {
                 }
             }
 
-            let waitUntil = DispatchTime.now() + Double(Int64(3 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+            let waitUntil = DispatchTime.now() + Double(Int64(self.completionHandlerWaitingDelay * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
             let result = semaphore.wait(timeout: waitUntil)
 
             if case .timedOut = result {
-                print("Router is stuck waiting for a" +
+                print("******* Router is stuck waiting for a" +
                     " completion handler to be called. Ensure that you have called the" +
-                    " completion handler in each Routable element.")
+                    " completion handler in each Routable element. *******")
                 break
             }
         }
