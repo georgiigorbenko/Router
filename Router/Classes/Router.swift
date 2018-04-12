@@ -7,15 +7,21 @@
 
 import UIKit
 
-public protocol RoutableAware {
+public protocol RoutableAware: class where Self: UIViewController {
     var routable:Routable { get }
+}
+
+public extension RoutableAware {
+    var routable:Routable {
+        return EmptyRoutable()
+    }
 }
 
 public class Router<Segment:RouteSegment> {
 
     private let completionHandlerWaitingDelay:Double = 5
 
-    private var rootViewController:UIViewController
+    private var rootViewController:RoutableAware
 
     public typealias RouteStackHandlerType = (UIViewController) -> [UIViewController]
 
@@ -25,7 +31,7 @@ public class Router<Segment:RouteSegment> {
     //serial queue make sure routes dispatched in the right order
     private let waitForRoutingCompletionQueue = DispatchQueue(label: "WaitForRoutingCompletionQueue", attributes: [])
 
-    public init(rootViewController:UIViewController) {
+    public init(rootViewController:RoutableAware) {
         self.rootViewController = rootViewController
 
         registerRouteStackHandler(type: UIViewController.self) { vc in
@@ -67,12 +73,14 @@ public class Router<Segment:RouteSegment> {
         return routeStackHandlers[index]
     }
 
-    private var fullStack:[UIViewController] {
-        return buildStack(vc: rootViewController)
+    private var fullStack:[RoutableAware] {
+        let viewControllers = buildStack(vc: rootViewController as! UIViewController)
+        return viewControllers.filter { $0 is RoutableAware } as! [RoutableAware]
     }
 
     private func buildStack(vc:UIViewController) -> [UIViewController] {
         var stack = findRouteStackHandler(for: vc)(vc)
+
         if stack.count == 0 || stack.last! === vc {
             return stack
         }
@@ -102,7 +110,7 @@ public class Router<Segment:RouteSegment> {
         let currentStack = fullStack
         guard currentStack.count > 0 else { return }
 
-        let action:RoutingActions = .pop(segmentIndex: currentStack.count - 1, viewController: currentStack.last!)
+        let action:RoutingActions = .pop(segmentIndex: currentStack.count - 1, viewController: currentStack.last! as! UIViewController)
         performRoutingActionsInQueue(actions: [action])
     }
 
@@ -110,14 +118,6 @@ public class Router<Segment:RouteSegment> {
         waitForRoutingCompletionQueue.async {
             self.performRoutingActions(actions: actions, animated: animated)
         }
-    }
-
-    private func routable(for viewController:UIViewController) -> Routable {
-        guard let routeAware = viewController as? RoutableAware else {
-            return EmptyRoutable()
-        }
-
-        return routeAware.routable
     }
 
     private func performRoutingActions(actions:[RoutingActions], animated:Bool = true) {
@@ -129,15 +129,15 @@ public class Router<Segment:RouteSegment> {
             DispatchQueue.main.async {
                 switch action {
                 case let .update(i, segment):
-                    self.routable(for: currentStack[i]).update(segment: segment, animated: animated) {
+                    currentStack[i].routable.update(segment: segment, animated: animated) {
                         semaphore.signal()
                     }
                 case let .push(i, segment):
-                    self.routable(for: currentStack[i - 1]).push(segment: segment, animated: animated) {
+                    currentStack[i - 1].routable.push(segment: segment, animated: animated) {
                         semaphore.signal()
                     }
                 case let .pop(i, viewController):
-                    self.routable(for: currentStack[i - 1]).pop(viewController: viewController, animated: animated) {
+                    currentStack[i - 1].routable.pop(viewController: viewController, animated: animated) {
                         semaphore.signal()
                     }
                 }
@@ -162,7 +162,7 @@ public class Router<Segment:RouteSegment> {
 
         let maxIndex = min(newSegments.count, currentStack.count - 1)
         for (i, newSegment) in newSegments[0..<maxIndex].enumerated() {
-            if routable(for: currentStack[i + 1]).shouldReuse(segment: newSegment) {
+            if currentStack[i + 1].routable.shouldReuse(segment: newSegment) {
                 //print("----UPDATE")
                 actions.append(.update(segmentIndex: i + 1, segment: newSegment))
             } else {
@@ -175,7 +175,7 @@ public class Router<Segment:RouteSegment> {
         if currentStack.count > 1 {
             //remove first not matched segment, it must dismiss all presented controllers
             let popIndex = keepSegmentsCount + 1
-            actions.append(.pop(segmentIndex: popIndex, viewController: currentStack[popIndex]))
+            actions.append(.pop(segmentIndex: popIndex, viewController: currentStack[popIndex] as! UIViewController))
             //print("----POP")
         }
 
