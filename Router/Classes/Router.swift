@@ -106,12 +106,28 @@ public class Router<Segment:RouteSegment> {
         performRoutingActionsInQueue(actions: actions)
     }
 
-    public func popLast() {
+    public func popLast(numberOfControllers:Int = 1) {
         let currentStack = fullStack
-        guard currentStack.count > 0 else { return }
+        guard numberOfControllers > 0 && currentStack.count > 0 else { return }
 
-        let action:RoutingActions = .pop(segmentIndex: currentStack.count - 1, viewController: currentStack.last! as! UIViewController)
+        let numberToPop = min(numberOfControllers, currentStack.count)
+
+        let segmentIndex = currentStack.count - numberToPop
+        let action:RoutingActions = .pop(segmentIndex: segmentIndex, viewController: currentStack[segmentIndex] as! UIViewController)
         performRoutingActionsInQueue(actions: [action])
+    }
+
+    public func pop(group: String) {
+        let currentStack = fullStack
+
+        for (segmentIndex, vc) in currentStack.enumerated() {
+            let segmentGroups = vc.routable.segmentGroups()
+            if segmentGroups.index(of: group) != nil {
+                let action:RoutingActions = .pop(segmentIndex: segmentIndex, viewController: currentStack[segmentIndex] as! UIViewController)
+                performRoutingActionsInQueue(actions: [action])
+                return
+            }
+        }
     }
 
     private func performRoutingActionsInQueue(actions:[RoutingActions], animated:Bool = true) {

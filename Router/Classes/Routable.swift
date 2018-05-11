@@ -11,6 +11,7 @@ public protocol Routable {
 
     //associatedtype Segment
 
+    func segmentGroups() -> [String]
     func push(segment:RouteSegment, animated:Bool, completion: @escaping () -> ())
     func pop(viewController:UIViewController, animated:Bool, completion: @escaping () -> ())
     func update(segment:RouteSegment, animated:Bool, completion: @escaping () -> ())
@@ -18,6 +19,11 @@ public protocol Routable {
 }
 
 public extension Routable {
+
+    func segmentGroups() -> [String] {
+        return []
+    }
+
     func push(segment:RouteSegment, animated:Bool, completion: @escaping () -> ()) {
         completion()
     }
