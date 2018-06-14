@@ -176,7 +176,7 @@ public class Router<Segment:RouteSegment> {
 
         let currentStack = fullStack
 
-        let maxIndex = min(newSegments.count, currentStack.count - 1)
+        let maxIndex = min(newSegments.count, currentStack.count) - 1
         for (i, newSegment) in newSegments[0..<maxIndex].enumerated() {
             if currentStack[i + 1].routable.shouldReuse(segment: newSegment) {
                 //print("----UPDATE")
@@ -186,16 +186,16 @@ public class Router<Segment:RouteSegment> {
             }
         }
 
-        let keepSegmentsCount = actions.count
+        let keepSegmentsCount = actions.count + 1
 
-        if currentStack.count > 1 {
+        if currentStack.count > keepSegmentsCount {
             //remove first not matched segment, it must dismiss all presented controllers
-            let popIndex = keepSegmentsCount + 1
+            let popIndex = keepSegmentsCount
             actions.append(.pop(segmentIndex: popIndex, viewController: currentStack[popIndex] as! UIViewController))
             //print("----POP")
         }
 
-        for i in keepSegmentsCount..<newSegments.count {
+        for i in (keepSegmentsCount - 1)..<newSegments.count {
             actions.append(.push(segmentIndex: i + 1, segment: newSegments[i]))
             //print("----PUSH")
         }
