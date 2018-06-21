@@ -34,22 +34,6 @@ public class Router<Segment:RouteSegment> {
     public init(rootViewController:RoutableAware) {
         self.rootViewController = rootViewController
 
-        registerRouteStackHandler(type: UIViewController.self) { vc in
-            var stack = [UIViewController]()
-
-            let managedStackTypes = Array(self.routeStackTypes.dropLast())
-
-            var currentVc = Optional.some(vc)
-            repeat {
-                stack.append(currentVc!)
-
-                if (managedStackTypes.index { currentVc!.isKind(of: $0) }) != nil { break }
-
-                currentVc = currentVc!.presentedViewController
-            } while (currentVc != nil)
-
-            return stack
-        }
         registerRouteStackHandler(type: UITabBarController.self) { vc in
             var stack:[UIViewController] = [vc]
             let vc = vc as! UITabBarController
@@ -59,8 +43,12 @@ public class Router<Segment:RouteSegment> {
             return stack
         }
         registerRouteStackHandler(type: UINavigationController.self) { vc in
-            return (vc as! UINavigationController).viewControllers
+            return [vc] + (vc as! UINavigationController).viewControllers
         }
+    }
+
+    private func defaultViewControllerHandler(vc:UIViewController) -> UIViewController? {
+        return vc.presentedViewController
     }
 
     public func registerRouteStackHandler(type:UIViewController.Type, handler: @escaping RouteStackHandlerType) {
@@ -68,18 +56,40 @@ public class Router<Segment:RouteSegment> {
         routeStackHandlers.insert(handler, at: 0)
     }
 
-    private func findRouteStackHandler(for vc:UIViewController) -> RouteStackHandlerType {
-        let index = routeStackTypes.index { vc.isKind(of: $0) }!
+    private func findRouteStackHandler(for vc:UIViewController) -> RouteStackHandlerType? {
+        guard let index = routeStackTypes.index(where:{ vc.isKind(of: $0) }) else { return nil }
         return routeStackHandlers[index]
     }
 
     private var fullStack:[RoutableAware] {
         let viewControllers = buildStack(vc: rootViewController as! UIViewController)
-        return viewControllers.filter { $0 is RoutableAware } as! [RoutableAware]
+        let stack = viewControllers.filter { $0 is RoutableAware } as! [RoutableAware]
+        return stack
     }
 
     private func buildStack(vc:UIViewController) -> [UIViewController] {
-        var stack = findRouteStackHandler(for: vc)(vc)
+        var stack = [UIViewController]()
+
+        var currentVc = Optional.some(vc)
+        repeat {
+            if let handler = findRouteStackHandler(for: currentVc!) {
+                stack += handler(currentVc!)
+                currentVc = stack.last
+            } else {
+                currentVc = nil
+            }
+        } while currentVc != nil
+
+        if stack.count == 0 {
+            stack = [vc]
+        }
+
+        for item in stack {
+            if let vc = defaultViewControllerHandler(vc: item) {
+                stack.append(vc)
+                break
+            }
+        }
 
         if stack.count == 0 || stack.last! === vc {
             return stack
