@@ -17,7 +17,7 @@ public extension RoutableAware {
     }
 }
 
-public class Router<Segment:RouteSegment> {
+public class Router<Segment:RouteSegment, SegmentGroup:RouteSegmentGroup> {
 
     private let completionHandlerWaitingDelay:Double = 5
 
@@ -127,12 +127,13 @@ public class Router<Segment:RouteSegment> {
         performRoutingActionsInQueue(actions: [action])
     }
 
-    public func pop(group: String) {
+    public func pop(group: SegmentGroup) {
         let currentStack = fullStack
 
         for (segmentIndex, vc) in currentStack.enumerated() {
-            let segmentGroups = vc.routable.segmentGroups()
-            if segmentGroups.index(of: group) != nil {
+            for segmentGroup in vc.routable.segmentGroups() {
+                guard segmentGroup.isEqual(group) else { continue }
+
                 let action:RoutingActions = .pop(segmentIndex: segmentIndex, viewController: currentStack[segmentIndex] as! UIViewController)
                 performRoutingActionsInQueue(actions: [action])
                 return
