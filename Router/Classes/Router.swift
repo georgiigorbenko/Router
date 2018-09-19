@@ -129,11 +129,9 @@ public class Router<Segment:RouteSegment, SegmentGroup:RouteSegmentGroup> {
 
     public func pop(group: SegmentGroup) {
         let currentStack = fullStack
-
+        
         for (segmentIndex, vc) in currentStack.enumerated() {
-            for segmentGroup in vc.routable.segmentGroups() {
-                guard segmentGroup.isEqual(group) else { continue }
-
+            if vc.routable.memberOf(group: group) {
                 let action:RoutingActions = .pop(segmentIndex: segmentIndex, viewController: currentStack[segmentIndex] as! UIViewController)
                 performRoutingActionsInQueue(actions: [action])
                 return

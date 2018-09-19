@@ -6,7 +6,4 @@
 //
 
 public protocol RouteSegment {}
-
-public protocol RouteSegmentGroup {
-    func isEqual(_ other: RouteSegmentGroup) -> Bool
-}
+public protocol RouteSegmentGroup {}

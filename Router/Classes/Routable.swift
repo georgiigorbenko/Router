@@ -8,7 +8,7 @@
 import UIKit
 
 public protocol Routable {
-    func segmentGroups() -> [RouteSegmentGroup]
+    func memberOf(group: RouteSegmentGroup) -> Bool
     func push(segment:RouteSegment, animated:Bool, completion: @escaping () -> ())
     func pop(viewController:UIViewController, animated:Bool, completion: @escaping () -> ())
     func update(segment:RouteSegment, animated:Bool, completion: @escaping () -> ())
@@ -16,8 +16,8 @@ public protocol Routable {
 }
 
 public extension Routable {
-    func segmentGroups() -> [RouteSegmentGroup] {
-        return []
+    func memberOf(group: RouteSegmentGroup) -> Bool {
+        return false
     }
     func push(segment:RouteSegment, animated:Bool, completion: @escaping () -> ()) {
         completion()
