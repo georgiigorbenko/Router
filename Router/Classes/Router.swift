@@ -24,10 +24,11 @@ public class Router<Segment:RouteSegment, SegmentGroup:RouteSegmentGroup> {
     private var rootViewController:RoutableAware
 
     public typealias RouteStackHandlerType = (UIViewController) -> [UIViewController]
+    public typealias UserCompletion = (() -> ())
 
     var routeStackHandlers = [RouteStackHandlerType]()
     var routeStackTypes = [UIViewController.Type]()
-
+    
     //serial queue make sure routes dispatched in the right order
     private let waitForRoutingCompletionQueue = DispatchQueue(label: "WaitForRoutingCompletionQueue", attributes: [])
 
@@ -62,7 +63,7 @@ public class Router<Segment:RouteSegment, SegmentGroup:RouteSegmentGroup> {
     }
 
     private var fullStack:[RoutableAware] {
-        let viewControllers = buildStack(vc: rootViewController as! UIViewController)
+        let viewControllers = buildStack(vc: rootViewController)
         let stack = viewControllers.filter { $0 is RoutableAware } as! [RoutableAware]
         return stack
     }
@@ -101,51 +102,51 @@ public class Router<Segment:RouteSegment, SegmentGroup:RouteSegmentGroup> {
         return stack
     }
 
-    public func route(_ newSegments:[Segment], animated:Bool = true) {
+    public func route(_ newSegments:[Segment], animated:Bool = true, completion: UserCompletion? = nil) {
         let actions = routingActions(newSegments: newSegments)
-        performRoutingActionsInQueue(actions: actions)
+        performRoutingActionsInQueue(actions: actions, completion: completion)
     }
 
-    public func push(_ newSegments:[Segment], animated:Bool = true) {
+    public func push(_ newSegments:[Segment], animated:Bool = true, completion: UserCompletion? = nil) {
         var actions = [RoutingActions]()
         let currentStack = fullStack
         for (i, segment) in newSegments.enumerated() {
             actions.append(.push(segmentIndex: currentStack.count + i, segment: segment))
         }
 
-        performRoutingActionsInQueue(actions: actions)
+        performRoutingActionsInQueue(actions: actions, completion: completion)
     }
 
-    public func popLast(numberOfControllers:Int = 1) {
+    public func popLast(numberOfControllers:Int = 1, completion: UserCompletion? = nil) {
         let currentStack = fullStack
         guard numberOfControllers > 0 && currentStack.count > 0 else { return }
 
         let numberToPop = min(numberOfControllers, currentStack.count)
 
         let segmentIndex = currentStack.count - numberToPop
-        let action:RoutingActions = .pop(segmentIndex: segmentIndex, viewController: currentStack[segmentIndex] as! UIViewController)
-        performRoutingActionsInQueue(actions: [action])
+        let action:RoutingActions = .pop(segmentIndex: segmentIndex, viewController: currentStack[segmentIndex])
+        performRoutingActionsInQueue(actions: [action], completion: completion)
     }
 
-    public func pop(group: SegmentGroup) {
+    public func pop(group: SegmentGroup, completion: UserCompletion? = nil) {
         let currentStack = fullStack
         
         for (segmentIndex, vc) in currentStack.enumerated() {
             if vc.routable.memberOf(group: group) {
-                let action:RoutingActions = .pop(segmentIndex: segmentIndex, viewController: currentStack[segmentIndex] as! UIViewController)
-                performRoutingActionsInQueue(actions: [action])
+                let action:RoutingActions = .pop(segmentIndex: segmentIndex, viewController: currentStack[segmentIndex])
+                performRoutingActionsInQueue(actions: [action], completion: completion)
                 return
             }
         }
     }
 
-    private func performRoutingActionsInQueue(actions:[RoutingActions], animated:Bool = true) {
+    private func performRoutingActionsInQueue(actions:[RoutingActions], animated:Bool = true, completion: UserCompletion? = nil) {
         waitForRoutingCompletionQueue.async {
-            self.performRoutingActions(actions: actions, animated: animated)
+            self.performRoutingActions(actions: actions, animated: animated, completion: completion)
         }
     }
 
-    private func performRoutingActions(actions:[RoutingActions], animated:Bool = true) {
+    private func performRoutingActions(actions:[RoutingActions], animated:Bool = true, completion: UserCompletion? = nil) {
         for action in actions {
             let semaphore = DispatchSemaphore(value: 0)
 
@@ -174,9 +175,13 @@ public class Router<Segment:RouteSegment, SegmentGroup:RouteSegmentGroup> {
             if case .timedOut = result {
                 print("******* Router is stuck waiting for a" +
                     " completion handler to be called. Ensure that you have called the" +
-                    " completion handler in each Routable element. *******")
+                    " completion handler in each Routable element. \(action) *******")
                 break
             }
+        }
+        
+        DispatchQueue.main.async {
+            completion?()
         }
     }
 
@@ -199,7 +204,7 @@ public class Router<Segment:RouteSegment, SegmentGroup:RouteSegmentGroup> {
         if currentStack.count > keepSegmentsCount {
             //remove first not matched segment, it must dismiss all presented controllers
             let popIndex = keepSegmentsCount
-            actions.append(.pop(segmentIndex: popIndex, viewController: currentStack[popIndex] as! UIViewController))
+            actions.append(.pop(segmentIndex: popIndex, viewController: currentStack[popIndex]))
         }
 
         for i in (keepSegmentsCount - 1)..<newSegments.count {
