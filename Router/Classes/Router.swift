@@ -104,7 +104,7 @@ public class Router<Segment:RouteSegment, SegmentGroup:RouteSegmentGroup> {
 
     public func route(_ newSegments:[Segment], animated:Bool = true, completion: UserCompletion? = nil) {
         let actions = routingActions(newSegments: newSegments)
-        performRoutingActionsInQueue(actions: actions, completion: completion)
+        performRoutingActionsInQueue(actions: actions, animated: animated, completion: completion)
     }
 
     public func push(_ newSegments:[Segment], animated:Bool = true, completion: UserCompletion? = nil) {
@@ -114,10 +114,10 @@ public class Router<Segment:RouteSegment, SegmentGroup:RouteSegmentGroup> {
             actions.append(.push(segmentIndex: currentStack.count + i, segment: segment))
         }
 
-        performRoutingActionsInQueue(actions: actions, completion: completion)
+        performRoutingActionsInQueue(actions: actions, animated: animated, completion: completion)
     }
 
-    public func popLast(numberOfControllers:Int = 1, completion: UserCompletion? = nil) {
+    public func popLast(numberOfControllers:Int = 1, animated: Bool = true, completion: UserCompletion? = nil) {
         let currentStack = fullStack
         guard numberOfControllers > 0 && currentStack.count > 0 else { return }
 
@@ -125,16 +125,16 @@ public class Router<Segment:RouteSegment, SegmentGroup:RouteSegmentGroup> {
 
         let segmentIndex = currentStack.count - numberToPop
         let action:RoutingActions = .pop(segmentIndex: segmentIndex, viewController: currentStack[segmentIndex])
-        performRoutingActionsInQueue(actions: [action], completion: completion)
+        performRoutingActionsInQueue(actions: [action], animated: animated, completion: completion)
     }
 
-    public func pop(group: SegmentGroup, completion: UserCompletion? = nil) {
+    public func pop(group: SegmentGroup, animated: Bool = true, completion: UserCompletion? = nil) {
         let currentStack = fullStack
         
         for (segmentIndex, vc) in currentStack.enumerated() {
             if vc.routable.memberOf(group: group) {
                 let action:RoutingActions = .pop(segmentIndex: segmentIndex, viewController: currentStack[segmentIndex])
-                performRoutingActionsInQueue(actions: [action], completion: completion)
+                performRoutingActionsInQueue(actions: [action], animated: animated, completion: completion)
                 return
             }
         }
