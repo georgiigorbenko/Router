@@ -7,7 +7,7 @@
 
 import UIKit
 
-public protocol RoutableAware: class where Self: UIViewController {
+public protocol RoutableAware where Self: UIViewController {
     var routable:Routable { get }
 }
 
@@ -58,7 +58,7 @@ public class Router<Segment:RouteSegment, SegmentGroup:RouteSegmentGroup> {
     }
 
     private func findRouteStackHandler(for vc:UIViewController) -> RouteStackHandlerType? {
-        guard let index = routeStackTypes.index(where:{ vc.isKind(of: $0) }) else { return nil }
+        guard let index = routeStackTypes.firstIndex(where:{ vc.isKind(of: $0) }) else { return nil }
         return routeStackHandlers[index]
     }
 
