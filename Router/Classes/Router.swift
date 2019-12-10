@@ -62,7 +62,7 @@ public class Router<Segment:RouteSegment, SegmentGroup:RouteSegmentGroup> {
         return routeStackHandlers[index]
     }
 
-    private var fullStack:[RoutableAware] {
+    public var fullStack: [RoutableAware] {
         let viewControllers = buildStack(vc: rootViewController)
         let stack = viewControllers.filter { $0 is RoutableAware } as! [RoutableAware]
         return stack
