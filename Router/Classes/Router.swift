@@ -150,9 +150,8 @@ public class Router<Segment:RouteSegment, SegmentGroup:RouteSegmentGroup> {
         for action in actions {
             let semaphore = DispatchSemaphore(value: 0)
 
-            let currentStack = self.fullStack
-
             DispatchQueue.main.async {
+                let currentStack = self.fullStack
                 switch action {
                 case let .update(i, segment):
                     currentStack[i].routable.update(segment: segment, animated: animated) {
