@@ -12,15 +12,17 @@ Pod::Spec.new do |s|
   s.summary          = 'Router for ios swift apps'
 
   s.homepage         = 'https://github.com/claustrofob/Router'
-  # s.screenshots     = 'www.example.com/screenshots_1', 'www.example.com/screenshots_2'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
   s.author           = { 'claustrofob' => 'claus@zlog.ru' }
   s.source           = { :git => 'https://github.com/claustrofob/Router.git', :tag => s.version }
-  # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
 
   s.ios.deployment_target = '11.0'
   s.swift_version = '5.0'
 
   s.source_files = 'Router/Classes/**/*'
   s.frameworks = 'UIKit'
+
+  s.pod_target_xcconfig = { 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64' }
+  s.user_target_xcconfig = { 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64' }
+
 end
